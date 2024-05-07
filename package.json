@@ -1,0 +1,35 @@
+{
+  "name": "bestiebot",
+  "version": "1.0.0",
+  "description": "It is a flagship program of the Bachelor of Elementary and Secondary Teaching (BEST) Society, which aims to provide information regarding PUP, COED, and/or DESED with only one click.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/naybiblu/bestiebot.git"
+  },
+  "keywords": [
+    "bot",
+    "telegram",
+    "pup",
+    "coed",
+    "desed"
+  ],
+  "author": "naybiblu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/naybiblu/bestiebot/issues"
+  },
+  "homepage": "",
+  "dependencies": {
+    "axios": "^1.6.8",
+    "colors": "^1.4.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "fs": "^0.0.1-security",
+    "mongoose": "^8.3.4",
+    "telegraf": "^4.16.3"
+  }
+}
