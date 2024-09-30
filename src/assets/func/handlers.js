@@ -3,7 +3,7 @@ const express = require("express");
 const { message } = require("telegraf/filters");
 require("dotenv").config();
 const { tg } = require("./clients");
-const { log, readDirGetJS } = require("./misc");
+const { log, readDirGetJS, mongo } = require("./misc");
 
 exports.initializeCollections = () => {
 
@@ -51,10 +51,12 @@ exports.eventHandler = () => {
 };
   
 exports.commandHandler = () => {
-  
-  readdirSync("./src/tg/commands").forEach((type) => {
+
+  readdirSync("./src/tg/commands").forEach((name) => {
         
-    tg.commands.set(code.data?.name, code);
+    let data = require(`./../../tg/commands/${name}`);
+
+    tg.commands.set(data.name, data);
 
   });
   
@@ -64,6 +66,7 @@ exports.commandHandler = () => {
   );
   
 };
+
 exports.catchErrors = () => {
   
   readdirSync("./src/process").forEach((e) => {
@@ -81,19 +84,36 @@ exports.catchErrors = () => {
         
 };
 
-exports.initializeBot = () => {
+exports.connectDB = async () => {
+
+  await mongo.connect();
+
+  readdirSync("./src/mongo/events").filter((e) => e.endsWith(".js")).forEach(async (event) => {
+
+    let data = require(`./../../mongo/events/${event}`);
+
+    data.run();
+
+  });
+
+};
+
+
+exports.initializeBot = async () => {
 
   const { 
     initializeCollections: a,
     eventHandler: b, 
     commandHandler: c, 
-    catchErrors: d
+    catchErrors: d,
+    connectDB: e
   } = this;
       
   a();
   b();
   c();
   d();
+  e();
   tg.launch();
       
 };

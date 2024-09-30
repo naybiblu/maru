@@ -1,21 +1,19 @@
 {
-  "name": "bestiebot",
+  "name": "maru",
   "version": "1.0.0",
-  "description": "It is a flagship program of the Bachelor of Elementary and Secondary Teaching (BEST) Society, which aims to provide information regarding PUP, COED, and/or DESED with only one click.",
+  "description": "A helpful, virtual companion for PUPians, from freshmen to senior students.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/naybiblu/bestiebot.git"
+    "url": "git+https://github.com/naybiblu/maru.git"
   },
   "keywords": [
     "bot",
     "telegram",
-    "pup",
-    "coed",
-    "desed"
+    "pup"
   ],
   "author": "naybiblu",
   "license": "ISC",
@@ -30,6 +28,7 @@
     "express": "^4.19.2",
     "fs": "^0.0.1-security",
     "mongoose": "^8.3.4",
+    "nodemon": "^3.1.7",
     "telegraf": "^4.16.3"
   }
 }
