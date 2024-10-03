@@ -2,7 +2,7 @@ const { model } = require("./../../assets/db/models/user");
 
 module.exports = {
     name: "start",
-    async run (ctx) {
+    async execute (ctx) {
 
         const user = ctx.update.message.from;
         let existingUser = await model.findOne({ id: user.id });
@@ -12,8 +12,7 @@ module.exports = {
             username: user.username
         });
         
-        await ctx.reply(`Is your username ${existingUser?.username ?? user.username}?`)
-
+        await ctx.reply(`Is your username ${existingUser?.username ?? user.username}?`);
 
     }
 }

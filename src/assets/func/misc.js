@@ -25,6 +25,12 @@ exports.readDirGetJS = (path, func = () => {}) => {
 
 };
 
+exports.getRandomInt = (min, max) => {
+  
+  return Math.floor(Math.random() * (max - min)) + min;
+  
+};
+
 exports.mongo = {
 
     async connect () {

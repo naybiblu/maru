@@ -1,15 +1,18 @@
 const { readdirSync } = require("fs");
 const express = require("express");
-const { message } = require("telegraf/filters");
+const path = require('path');
+const { TelegrafCommandHandler: Commands } = require('telegraf-command-handler-upgraded');
 require("dotenv").config();
 const { tg } = require("./clients");
 const { log, readDirGetJS, mongo } = require("./misc");
+const { commands: d1 } = require("./commands");
 
-exports.initializeCollections = () => {
+/*exports.initializeCollections = () => {
 
   tg.commands = new Map();
+  tg.scenes = new Map();
 
-};
+};*/
 
 exports.setServer = async () => {
 
@@ -30,11 +33,11 @@ exports.setServer = async () => {
 
 };
 
-exports.eventHandler = () => {
+/*exports.eventHandler = async() => {
 
-  readdirSync("./src/tg/events").forEach((event) => {
+  readdirSync("./src/tg/events").forEach( async (event) => {
 
-    readDirGetJS(`./src/tg/events/${event}`, (file) => {
+    readDirGetJS(`./src/tg/events/${event}`, async (file) => {
 
       let data = require(`./../../tg/events/${event}/${file}`);
 
@@ -48,21 +51,47 @@ exports.eventHandler = () => {
       
   });
   
-};
+};*/
   
 exports.commandHandler = () => {
 
-  readdirSync("./src/tg/commands").forEach((name) => {
-        
-    let data = require(`./../../tg/commands/${name}`);
+  let commandsDir = readdirSync("./src/tg/commands");
+  let actionsDir = readdirSync("./src/tg/actions");
 
-    tg.commands.set(data.name, data);
+  actionsDir.forEach((name) => {
+        
+    let data = require(`./../../tg/actions/${name}`);
+
+    tg.action(data.name, data.run.bind(tg));
+
+  });
+
+  const CommandHandler = new Commands({
+    path: path.resolve() + "/src/tg/commands",
+    errorHandling: (ctx) => ctx.reply("Something went wrong. Please try again later.")
+  });
+
+  tg.use(CommandHandler.load());
+  
+  log.success(
+    "Telegram", 
+    `Registered ${commandsDir.length} command${commandsDir.length > 1 ? "s" : ""}.`
+  );
+  
+};
+
+exports.sceneHandler = () => {
+
+  let scenesDir = readdirSync("./src/tg/scenes");
+  scenesDir.forEach((name) => {
+        
+    let data = require(`./../../tg/scenes/${name}`).run(tg);
 
   });
   
   log.success(
     "Telegram", 
-    `Registered ${tg.commands.size} command${tg.commands.size > 1 ? "s" : ""}.`
+    `Registered ${scenesDir.length} scene${scenesDir.length > 1 ? "s" : ""}.`
   );
   
 };
@@ -102,18 +131,21 @@ exports.connectDB = async () => {
 exports.initializeBot = async () => {
 
   const { 
-    initializeCollections: a,
-    eventHandler: b, 
-    commandHandler: c, 
-    catchErrors: d,
-    connectDB: e
+    //initializeCollections: a,
+    //eventHandler: b,
+    sceneHandler: c,
+    commandHandler: d2,
+    catchErrors: e,
+    connectDB: f,
   } = this;
       
-  a();
-  b();
+  //a();
+  //b();
   c();
-  d();
+  d1();
+  d2();
   e();
+  f();
   tg.launch();
       
 };
