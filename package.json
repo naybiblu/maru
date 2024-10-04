@@ -24,7 +24,6 @@
   "dependencies": {
     "@cfworker/web": "^1.14.0",
     "axios": "^1.6.8",
-    "cfworker-middleware-telegraf": "^2.0.2",
     "colors": "^1.4.0",
     "dotenv": "^16.4.5",
     "fs": "^0.0.1-security",
