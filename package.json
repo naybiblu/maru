@@ -22,7 +22,6 @@
   },
   "homepage": "",
   "dependencies": {
-    "@cfworker/web": "^1.14.0",
     "axios": "^1.6.8",
     "colors": "^1.4.0",
     "dotenv": "^16.4.5",

@@ -1,8 +1,6 @@
 const { readdirSync } = require("fs");
 const path = require('path');
 const { TelegrafCommandHandler: Commands } = require('telegraf-command-handler-upgraded');
-const { Application, Router } = require('@cfworker/web');
-const { SECRET_PATH: secret } = process.env;
 require("dotenv").config();
 const { tg } = require("./clients");
 const { log, readDirGetJS, mongo } = require("./misc");
@@ -17,14 +15,7 @@ const { commands: d1 } = require("./commands");
 
 /*exports.setServer = async () => {
 
-  const router = new Router();
-
-  router.post(`/${secret}`, createTelegrafMiddleware(bot))
   
-  new Application().use(router.middleware).listen();
-
-  tg.telegram.setWebhook(`https://maru.iamsuperv15.workers.dev/${secret}`);
-  await bot.telegram.getWebhookInfo().then(console.log);
 
 };*/
 
