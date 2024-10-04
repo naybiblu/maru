@@ -12,7 +12,7 @@ const { commands: d1 } = require("./commands");
 /*exports.initializeCollections = () => {
 
   tg.commands = new Map();
-  tg.scenes = new Map();
+  tg.scenes = new Map()
 
 };*/
 
