@@ -22,14 +22,21 @@
   },
   "homepage": "",
   "dependencies": {
+    "@cfworker/web": "^1.14.0",
     "axios": "^1.6.8",
+    "cfworker-middleware-telegraf": "^2.0.2",
     "colors": "^1.4.0",
     "dotenv": "^16.4.5",
-    "express": "^4.19.2",
     "fs": "^0.0.1-security",
     "mongoose": "^8.3.4",
     "nodemon": "^3.1.7",
     "telegraf": "^4.16.3",
-    "telegraf-command-handler-upgraded": "^1.2.2"
+    "telegraf-command-handler-upgraded": "^1.2.2",
+    "wrangler": "^3.79.0"
+  },
+  "devDependencies": {
+    "node-polyfill-webpack-plugin": "^4.0.0",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4"
   }
 }
