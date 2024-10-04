@@ -131,7 +131,7 @@ exports.connectDB = async () => {
 exports.initializeBot = async () => {
 
   const { 
-    //initializeCollections: a,
+    //initializeCollections: aa,
     //eventHandler: b,
     sceneHandler: c,
     commandHandler: d2,
@@ -139,7 +139,7 @@ exports.initializeBot = async () => {
     connectDB: f,
   } = this;
       
-  //a();
+  //aa();
   //b();
   c();
   d1();
