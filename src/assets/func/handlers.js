@@ -3,15 +3,9 @@ const path = require('path');
 const { TelegrafCommandHandler: Commands } = require('telegraf-command-handler-upgraded');
 require("dotenv").config();
 const { tg } = require("./clients");
-const { log, readDirGetJS, mongo } = require("./misc");
-const { commands: d1 } = require("./commands");
+const { log, mongo } = require("./misc");
+const { commands: c1 } = require("./commands");
 const { model } = require("./../db/models/user");
-
-/*exports.setServer = async () => {
-
-  
-
-};*/
 
 /*exports.eventHandler = async() => {
 
@@ -65,7 +59,7 @@ exports.sceneHandler = () => {
   let scenesDir = readdirSync("./src/tg/scenes");
   scenesDir.forEach((name) => {
         
-    let data = require(`./../../tg/scenes/${name}`).run(tg);
+    require(`./../../tg/scenes/${name}`).run(tg);
 
   });
   
@@ -116,19 +110,20 @@ exports.connectDB = async () => {
 exports.initializeBot = async () => {
 
   const { 
-    //eventHandler: b,
-    sceneHandler: c,
-    commandHandler: d2,
-    catchErrors: e,
-    connectDB: f,
+    //eventHandler: a,
+    sceneHandler: b,
+    commandHandler: c2,
+    catchErrors: d,
+    connectDB: e,
   } = this;
-      
-  //b();
-  c();
-  d1();
-  d2();
+
+  //a();
+  b();
+  c1();
+  c2();
+  d();
   e();
-  f();
+
   tg.launch();
       
 };

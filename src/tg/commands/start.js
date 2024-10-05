@@ -7,12 +7,14 @@ module.exports = {
         const user = ctx.update.message.from;
         let existingUser = await model.findOne({ id: user.id });
 
-        if (!existingUser) await model.create({
+        if (existingUser && existingUser?.oldie) return await ctx.reply("You do not need to use this command anymore. Kindly use /settings instead.");
+
+        await model.create({
             id: user.id,
             username: user.username
         });
         
-        await ctx.reply(`Is your username ${existingUser?.username ?? user.username}?`);
+        await ctx.scene.enter("start");
 
     }
 }

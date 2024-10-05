@@ -70,7 +70,7 @@ exports.foodWatchMenu = async (ctx) => {
     await ctx.answerCbQuery();
 
     await ctx.editMessageText(
-        `*🍴 Welcome to /foodtrip, your guide to every food establishment within and around PUP.*\n\nKindly choose a location you want to visit or contribute with us in updating the _PUP Sta. Mesa Food Price Watch_ Google Sheets file.`, 
+        `*🍴 Welcome to /foodtrip: your guide to every food establishment within and around PUP.*\n\nKindly choose a location you want to visit or contribute with us in updating the _PUP Sta. Mesa Food Price Watch_ Google Sheets file.`, 
         {
             parse_mode: 'Markdown',
             ...Markup.inlineKeyboard([
@@ -82,5 +82,34 @@ exports.foodWatchMenu = async (ctx) => {
             { columns: 1 } )
         }
     );
+
+};
+
+exports.startShowUsername = async (ctx) => {
+
+    await ctx.answerCbQuery();
+    await ctx.editMessageText("Do you want to hide your Telegram username to the public?",
+        {
+            parse_mode: 'Markdown',
+            ...Markup.inlineKeyboard([
+                Markup.button.callback('Yes', 'sYes2'),
+                Markup.button.callback('No', 'sNo2')
+            ])
+        }
+    );
+
+};
+
+exports.endStart = async (ctx) => {
+
+    const author = ctx.update.callback_query.from;
+    await model.updateOne( 
+        { id: author.id },
+        { $set: { oldie: true } }
+    );
+
+    await ctx.answerCbQuery();
+    await ctx.editMessageText("Thank you for your cooperation. You may visit the main /menu.");
+    await ctx.scene.leave();
 
 };

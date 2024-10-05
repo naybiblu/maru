@@ -11,7 +11,7 @@ module.exports = {
         );
 
         await ctx.reply(
-            `*🍴 Welcome to /foodtrip, your guide to every food establishment within and around PUP.*\n\nKindly choose a location you want to visit or contribute with us in updating the _PUP Sta. Mesa Food Price Watch_ Google Sheets file.`, 
+            `*🍴 Welcome to /foodtrip: your guide to every food establishment within and around PUP.*\n\nKindly choose a location you want to visit or contribute with us in updating the _PUP Sta. Mesa Food Price Watch_ Google Sheets file.`, 
             {
                 parse_mode: 'Markdown',
                 ...Markup.inlineKeyboard([

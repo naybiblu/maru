@@ -1,4 +1,4 @@
-const { Telegraf } = require('telegraf');
+const { Composer, Telegraf } = require('telegraf');
 const { 
     TELEGRAM_APIKEY: tg,
  } = process.env;

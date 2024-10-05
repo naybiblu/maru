@@ -8,6 +8,10 @@ exports.commands = async () => {
             description: "Start this bot."
         },
         {
+            command: "menu",
+            description: "Interact with the main menu."
+        },
+        {
             command: "paperplane",
             description: "Send a message to a random PUPian."
         },
