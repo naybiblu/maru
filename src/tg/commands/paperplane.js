@@ -1,4 +1,3 @@
-const Markup = require('telegraf/markup');
 const { model } = require("../../assets/db/models/user");
 const { getRandomInt } = require("./../../assets/func/misc");
 
@@ -14,11 +13,13 @@ module.exports = {
         ] });
         let target = await users[getRandomInt(0, users.length - 1)];
 
-        if (args.length === 0) return ctx.reply("Be sure to add your message after the command. To do this, kindly hold the slash command, instead of clicking.")
+        if (args.length === 0) return ctx.reply("*✈️  Welcome to \paperplane, where you can send a message to a random PUPian.*\n\nTo properly use this, kindly _long press_ this command, instead of clicking.\n\n\`\`\`format /paperplane <message>\`\`\`\n\`\`\`format /reply <user_id> <message>\`\`\`",
+            { parse_mode: "Markdown" }
+        );
         if (users.length < 0 || !target || target === undefined) return ctx.reply("This feature is unavailable for the mean time. Please try again later.");
 
         await ctx.telegram.sendMessage(target?.id, 
-            `*💌 ${!user?.settings.showUsername ? "Someone" : author.username} had sent you a message!*\n\n\`\`\`message \"${args.join()}\"\`\`\``, 
+            `*💌 You have a new message!*\n\n\`\`\`${!user?.settings.showUsername ? "anonyPUPian" : author.username} ${args.join()}\`\`\``, 
             { parse_mode: 'Markdown' }
         );
         await ctx.telegram.sendMessage(target?.id, 

@@ -1,4 +1,3 @@
-const Markup = require('telegraf/markup');
 const { model } = require("../../assets/db/models/user");
 
 module.exports = {
@@ -14,9 +13,8 @@ module.exports = {
         if (sender?.settings.noPaperPlane) return ctx.reply(`${sender?.settings.showUsername ? "Someone" : sender?.username} is not available for this feature. Please try again later.`);
 
         await ctx.telegram.sendMessage(senderId, 
-            `*💌 ${!user?.settings.showUsername ? "Someone" : author.username} had sent you a message!*\n\n\`\`\`message \"${args.join()}\"\`\`\``, {
-            parse_mode: 'Markdown'
-        })
+            `*💌 You have a new message!*\n\n\`\`\`${!user?.settings.showUsername ? "anonyPUPian" : author.username} ${args.join()}\`\`\``,  
+            { parse_mode: 'Markdown' })
         await ctx.telegram.sendMessage(senderId, 
             `Kindly _copy_ the text below to reply and add your message after:`, 
             { parse_mode: 'Markdown' }

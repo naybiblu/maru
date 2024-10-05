@@ -5,13 +5,7 @@ require("dotenv").config();
 const { tg } = require("./clients");
 const { log, readDirGetJS, mongo } = require("./misc");
 const { commands: d1 } = require("./commands");
-
-/*exports.initializeCollections = () => {
-
-  tg.commands = new Map();
-  tg.scenes = new Map()
-
-};*/
+const { model } = require("./../db/models/user");
 
 /*exports.setServer = async () => {
 
@@ -29,7 +23,7 @@ const { commands: d1 } = require("./commands");
 
       switch (event) {
 
-        case "message": tg.on(message(data.type), data.run.bind(tg));
+        case "message": tg.on(message(data.type), data.run.bind(tg))
   
       }
 
@@ -111,13 +105,17 @@ exports.connectDB = async () => {
 
   });
 
+  await model.updateMany(
+    { }, 
+    { $set: { indexPagination: 0 } }
+  );
+
 };
 
 
 exports.initializeBot = async () => {
 
   const { 
-    //initializeCollections: a,
     //eventHandler: b,
     sceneHandler: c,
     commandHandler: d2,
@@ -125,7 +123,6 @@ exports.initializeBot = async () => {
     connectDB: f,
   } = this;
       
-  //a();
   //b();
   c();
   d1();
