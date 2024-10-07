@@ -1,9 +1,11 @@
 const { readdirSync } = require("fs");
 const path = require('path');
 const { TelegrafCommandHandler: Commands } = require('telegraf-command-handler-upgraded');
+const { parse } = require('rss-to-json');
+const { DISCORD_TOKEN: token } = process.env;
 require("dotenv").config();
-const { tg } = require("./clients");
-const { log, mongo } = require("./misc");
+const { tg, dc } = require("./clients");
+const { log, mongo, sendWeeklyPUPWeather } = require("./misc");
 const { commands: c1 } = require("./commands");
 const { model } = require("./../db/models/user");
 
@@ -54,18 +56,13 @@ exports.commandHandler = () => {
   
 };
 
-exports.sceneHandler = () => {
+exports.sceneHandler = async () => {
 
-  let scenesDir = readdirSync("./src/tg/scenes");
-  scenesDir.forEach((name) => {
-        
-    require(`./../../tg/scenes/${name}`).run(tg);
+  require("./../../tg/scenes").run(tg);
 
-  });
-  
   log.success(
     "Telegram", 
-    `Registered ${scenesDir.length} scene${scenesDir.length > 1 ? "s" : ""}.`
+    `Registered scenes.`
   );
   
 };
@@ -106,6 +103,27 @@ exports.connectDB = async () => {
 
 };
 
+exports.connectDC = async () => {
+
+  dc
+    .on("ready", async () => {
+
+      log.success(
+        "Discord", 
+        "Online."
+      );
+
+      setInterval(async () => {
+        
+        await sendWeeklyPUPWeather();
+      
+      }, 20 * 1000);
+
+    })
+    .login(token);
+
+}
+
 
 exports.initializeBot = async () => {
 
@@ -115,6 +133,7 @@ exports.initializeBot = async () => {
     commandHandler: c2,
     catchErrors: d,
     connectDB: e,
+    connectDC: f
   } = this;
 
   //a();
@@ -123,6 +142,7 @@ exports.initializeBot = async () => {
   c2();
   d();
   e();
+  f();
 
   tg.launch();
       

@@ -1,6 +1,6 @@
 module.exports = {
-    name: "menu",
-    async execute (ctx) {
+    name: "mainMenu",
+    async run (ctx) {
 
         await ctx.scene.enter("menu");
 

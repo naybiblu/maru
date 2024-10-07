@@ -1,11 +1,23 @@
 const moment = require("moment");
 const Markup = require('telegraf/markup');
-const { getFoodData } = require("../../assets/func/misc");
+const { parse } = require('rss-to-json');
+const { 
+    getFoodData,
+    getDay,
+    getMessage,
+    getStateOfTheDay: statify,
+    readPUPWeatherData: weatherData
+} = require("../../assets/func/misc");
 const { model } = require("./../../assets/db/models/user");
+const { 
+    GOOGLE_SHEETLINK: sheet,
+    DISCORD_DEVSMSG_CHANNELID: dmChanId
+} = process.env;
+require("dotenv").config();
 
-exports.foodWatchInfo = async ( ctx, { paginated, operator, location }) => {
+exports.foodWatchInfo = async ( ctx, { paginated, operator, cluster }) => {
 
-    let data = await getFoodData(location);
+    let data = await getFoodData(cluster);
     let author = ctx.update.callback_query.from; 
     let user = await model.findOne({ id: author.id });
     let checkIfHide = data.length <= 1;
@@ -46,13 +58,13 @@ exports.foodWatchInfo = async ( ctx, { paginated, operator, location }) => {
 
     await ctx.answerCbQuery();
 
-    await ctx.editMessageText(`*[📍 ${location}]*\nThe following are the food prices from *${business.businessName}*, as of _${moment().format('MMMM Do YYYY')}_:\n\n${business.types.map(type => `\t*${type.type}:*\n${type.entries.map(entry => `\t\t\t${entry.foodName} (Php ${entry.price})\n`).join('')}`).join('\n')}`, 
+    await ctx.editMessageText(`*[📍 ${cluster}]*\nThe following are the food prices from *${business.businessName}*:\n\n${business.types.map(type => `\t*${type.type}:*\n${type.entries.map(entry => `\t\t\t_${entry.foodName}_ (Php ${entry.price})\n`).join('')}`).join('\n')}`, 
         { 
             parse_mode: "Markdown",
             ...Markup.inlineKeyboard([
-                Markup.button.callback('<', `ftPrev${suffixCode[location]}`, checkIfHide),
+                Markup.button.callback('◄ Previous', `ftPrev${suffixCode[cluster]}`, checkIfHide),
                 Markup.button.callback('Back', 'ftBack'),
-                Markup.button.callback('>', `ftNext${suffixCode[location]}`, checkIfHide)
+                Markup.button.callback('Next ►', `ftNext${suffixCode[cluster]}`, checkIfHide)
             ],  
             { columns: checkIfHide ? 1 : 3 } )
         }
@@ -60,28 +72,60 @@ exports.foodWatchInfo = async ( ctx, { paginated, operator, location }) => {
 
 };
 
-exports.foodWatchMenu = async (ctx) => {
+exports.foodWatchMenu = async (ctx, queryBased = true) => {
+
+    const author = queryBased ? ctx.update.callback_query.from : ctx.update.message.from;
 
     await model.updateOne(
-        { id: ctx.update.callback_query.from.id }, 
+        { id: author.id }, 
         { $set: { indexPagination: 0 } }
     );
 
-    await ctx.answerCbQuery();
-
-    await ctx.editMessageText(
-        `*🍴 Welcome to /foodtrip: your guide to every food establishment within and around PUP.*\n\nKindly choose a location you want to visit or contribute with us in updating the _PUP Sta. Mesa Food Price Watch_ Google Sheets file.`, 
-        {
+    const content = {
+        text: `*🍴 Welcome to /foodtrip: your guide to every food establishment within and around PUP.*\n\nKindly choose a location you want to visit or contribute with us in updating the _PUP Sta. Mesa Food Price Watch_ Google Sheets file.`, 
+        options: {
             parse_mode: 'Markdown',
             ...Markup.inlineKeyboard([
-                Markup.button.callback('PUP Lagoon', 'ftLoc1'),
-                Markup.button.callback('PUP Stop and Shop', 'ftLoc2'),
-                Markup.button.callback('Teresa Drive', 'ftLoc3'),
-                Markup.button.url('Contribute', 'https://docs.google.com/spreadsheets/d/1NfHae5yGx0fbi_0WnbbZKKW0fuUOhLluYvBO53Ej2XM/edit?usp=sharing')
-            ],  
-            { columns: 1 } )
+                [ Markup.button.callback('PUP Lagoon', 'ftLoc1') ],
+                [ Markup.button.callback('PUP Stop and Shop', 'ftLoc2') ],
+                [ Markup.button.callback('Teresa Drive', 'ftLoc3') ],
+                [ Markup.button.url('Contribute', sheet), Markup.button.callback('Back', 'mainMenu') ]
+            ])
         }
-    );
+    };
+
+    if (queryBased) { 
+        
+        await ctx.answerCbQuery();
+        await ctx.editMessageText(content.text, content.options);
+
+    } else await ctx.reply(content.text, content.options);
+
+};
+
+exports.settingsMenu = async (ctx, queryBased = true) => {
+
+    const author = queryBased ? ctx.update.callback_query.from : ctx.update.message.from;
+    const user = await model.findOne( { id: author.id });
+    const content = {
+        text: "*🔑 Welcome to /settings, where you can change your profile and/or preferences.*\n\nKindly click the button that favors on your preferred course of action. To change your username, you may utilize the Settings tab of Telegram app." +
+        `\n\nUsername: *${user?.username}*\nUse /paperplane: *${user?.settings.noPaperPlane ? "No" : "Yes"}*\nShow username: *${user?.settings.showUsername ? "Yes" : "No"}*`, 
+        options: {
+            parse_mode: 'Markdown',
+            ...Markup.inlineKeyboard([
+                [ Markup.button.callback(`Use /paperplane`, 'setNoPP'), Markup.button.callback(`Show Username`, 'setShowUN') ],
+                [ Markup.button.callback(`Back`, 'mainMenu') ]
+            ])
+        }
+        
+    };
+
+    if (queryBased) {
+
+        await ctx.answerCbQuery();
+        await ctx.editMessageText(content.text, content.options);
+
+    } else await ctx.reply(content.text, content.options); 
 
 };
 
@@ -111,5 +155,90 @@ exports.endStart = async (ctx) => {
     await ctx.answerCbQuery();
     await ctx.editMessageText("Thank you for your cooperation. You may visit the main /menu.");
     await ctx.scene.leave();
+
+};
+
+exports.checkPUPWeather = async (ctx, queryBased = true, getToday = true) => {
+
+    const author = queryBased ? ctx.update.callback_query.from : ctx.update.message.from;
+    const [today, tomorrow] = await weatherData();
+    const data = getToday ? today : tomorrow;
+    const checkIfToday = getDay(data.time) === getDay(Math.floor(Date.now() / 1000));
+    const content = {
+        text: `*👋 Good ${statify().en}, ${author.username}!\n\n*` +
+        `We expect${data.weatherCode.text.endsWith("s") ? " " : ["a", "e", "i", "o", "u"].includes([...data.weatherCode.text][0]) ? " an " : " a "}` +
+        `${data.weatherCode.emoji} *${data.weatherCode.text.toLowerCase()}* ${checkIfToday ? "today" : "tomorrow"} (${moment(data.time * 1000).format('LL')}) in PUP Sta. Mesa, ` +
+        `with *${data.rainProb} chance of raining*.\n\n` +
+        `\`\`\`temperature maximum: ${data.maxTemp}\n\tminimum: ${data.minTemp}\`\`\``,
+        options: {
+            parse_mode: 'Markdown',
+            ...Markup.inlineKeyboard([
+                [ 
+                    Markup.button.callback("◄ News", "mNews", !checkIfToday), 
+                    Markup.button.callback(`Tomorrow ►`, 'mWeatherTom', !checkIfToday),
+                    Markup.button.callback("◄ Today", "mWeatherToday", checkIfToday), 
+                    Markup.button.callback(`Dev\'s Message ►`, 'mDevMsg', checkIfToday)
+                ]
+            ])
+        }
+    };
+
+    if (queryBased) {
+
+        await ctx.answerCbQuery();
+        await ctx.editMessageText(content.text, content.options);
+
+    } else await ctx.reply(content.text, content.options);
+
+};
+
+exports.checkPUPNews = async (ctx) => {
+
+    const rss = await parse('https://www.pup.edu.ph/rss/news/?go=11');
+    const firstNews = rss.items[0];
+    const article = firstNews.description.split("<br/>");
+    const [author, text] = article;
+    const sentences = text.split("\n\n");
+    //const photo = text.match(/<img.*?src="(.*?)"/i)[1];
+    const content = {
+        text: `NEWS | *${firstNews.title}*\n` +
+        `by _${author}_\n\n` +
+        `${sentences[1].replace(/<[^>]*>?/gm, '')}`,
+        options: {
+            parse_mode: 'Markdown',
+            ...Markup.inlineKeyboard([
+                [ Markup.button.url("Read More", firstNews.link) ],
+                [ 
+                    Markup.button.callback("◄ Dev\'s Message", "mDevMsg"), 
+                    Markup.button.callback(`Weather ►`, 'mWeatherToday'),
+                ]
+            ])
+        }
+    };
+
+    await ctx.answerCbQuery();
+    await ctx.editMessageText(content.text, content.options);
+    //await ctx.editMessageMedia({ source: photo });
+
+};
+
+exports.checkDevMsg = async (ctx) => {
+
+    const devMsg = await getMessage(dmChanId);
+    const content = { 
+        text: devMsg.content,
+        options: {
+            parse_mode: 'Markdown',
+            ...Markup.inlineKeyboard([
+                [ 
+                    Markup.button.callback("◄ Weather", "mWeatherTom"), 
+                    Markup.button.callback(`News ►`, 'mNews'),
+                ]
+            ])
+        }
+    };
+
+    await ctx.answerCbQuery();
+    await ctx.editMessageText(content.text, content.options);
 
 };

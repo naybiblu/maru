@@ -13,9 +13,10 @@ module.exports = {
         ] });
         let target = await users[getRandomInt(0, users.length - 1)];
 
-        if (args.length === 0) return ctx.reply("*✈️  Welcome to \paperplane, where you can send a message to a random PUPian.*\n\nTo properly use this, kindly _long press_ this command, instead of clicking.\n\n\`\`\`format /paperplane <message>\`\`\`\n\`\`\`format /reply <user_id> <message>\`\`\`",
+        if (args.length === 0) return ctx.reply("*✈️  Welcome to /paperplane, where you can send a message to a random PUPian.*\n\nTo properly use this, kindly _long press_ the command, instead of clicking.\n\n\`\`\`format /paperplane <message>\`\`\`\n\`\`\`format /reply <user_id> <message>\`\`\`",
             { parse_mode: "Markdown" }
         );
+        if (user.settings.noPaperPlane) return ctx.reply("You have disabled /paperplane and /reply commands. To enable, kindly visit the /settings.");
         if (users.length < 0 || !target || target === undefined) return ctx.reply("This feature is unavailable for the mean time. Please try again later.");
 
         await ctx.telegram.sendMessage(target?.id, 

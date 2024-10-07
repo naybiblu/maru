@@ -9,7 +9,10 @@ module.exports = {
         let author = ctx.update.message.from;
         let user = await model.findOne({ id: author.id });
 
-        if (args.length === 0) return ctx.reply("Be sure to add your message after the command. To do this, kindly hold the slash command, instead of clicking.")
+        if (args.length === 0) return ctx.reply("*✈️  Welcome to /reply, where you can send a response to a random message.*\n\nTo properly use this, kindly utilize the command provided with the message.\n\n\`\`\`format /reply <user_id> <message>\`\`\`\n\`\`\`format /paperplane <message>\`\`\`",
+            { parse_mode: "Markdown" }
+        );
+        if (user.settings.noPaperPlane) return ctx.reply("You have disabled /paperplane and /reply commands. To enable, kindly visit the /settings.");
         if (sender?.settings.noPaperPlane) return ctx.reply(`${sender?.settings.showUsername ? "Someone" : sender?.username} is not available for this feature. Please try again later.`);
 
         await ctx.telegram.sendMessage(senderId, 
