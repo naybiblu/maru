@@ -163,22 +163,21 @@ exports.checkPUPWeather = async (ctx, queryBased = true, getToday = true) => {
     const author = queryBased ? ctx.update.callback_query.from : ctx.update.message.from;
     const [today, tomorrow] = await weatherData();
     const data = getToday ? today : tomorrow;
-    const time = new Date(data.time * 1000);
-    const checkIfToday = getDay(data.time) === getDay(Math.floor(Date.now() / 1000));
+    //const checkIfToday = getDay(data.time + 28800) === getDay(Date.now());
     const content = {
         text: `*👋 Good ${statify().en}, ${author.username}!\n\n*` +
         `We expect${data.weatherCode.text.endsWith("s") ? " " : ["a", "e", "i", "o", "u"].includes([...data.weatherCode.text][0]) ? " an " : " a "}` +
-        `${data.weatherCode.emoji} *${data.weatherCode.text.toLowerCase()}* ${checkIfToday ? "today" : "tomorrow"} (${moment(time.toUTCString()).format('LL')}) in PUP Sta. Mesa, ` +
+        `${data.weatherCode.emoji} *${data.weatherCode.text.toLowerCase()}* ${getToday ? "today" : "tomorrow"} (${moment(data.time * 1000).format('LL')}) in PUP Sta. Mesa, ` +
         `with *${data.rainProb} chance of raining*.\n\n` +
         `\`\`\`temperature maximum: ${data.maxTemp}\n\tminimum: ${data.minTemp}\`\`\``,
         options: {
             parse_mode: 'Markdown',
             ...Markup.inlineKeyboard([
                 [ 
-                    Markup.button.callback("◄ News", "mNews", !checkIfToday), 
-                    Markup.button.callback(`Tomorrow ►`, 'mWeatherTom', !checkIfToday),
-                    Markup.button.callback("◄ Today", "mWeatherToday", checkIfToday), 
-                    Markup.button.callback(`Dev\'s Message ►`, 'mDevMsg', checkIfToday)
+                    Markup.button.callback("◄ News", "mNews", !getToday), 
+                    Markup.button.callback(`Tomorrow ►`, 'mWeatherTom', !getToday),
+                    Markup.button.callback("◄ Today", "mWeatherToday", getToday), 
+                    Markup.button.callback(`Dev\'s Message ►`, 'mDevMsg', getToday)
                 ]
             ])
         }
