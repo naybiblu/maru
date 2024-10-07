@@ -98,9 +98,9 @@ exports.getDay = (unix, humanized = false) => {
     "Saturday"
   ];
 
-  const date = new Date(unix * 1000);
-  const day = date.getDay();
-  
+  const date = new Date(unix);
+  let day = date.getDay();
+
   return humanized ? daysOftheWeek[day] : day;
 
 };
@@ -358,16 +358,18 @@ exports.readPUPWeatherData = async (getTodayData = true, humanized = true) => {
     getDay, 
     humanizedPUPWeatherData: humanize 
   } = this;
-  const today = Math.floor(Date.now() / 1000);
+  const today = Math.floor(Date.now());
   const rawData = (await (await dc.channels.fetch(weatherChanId)).messages.fetch({ limit: 1 })).first().embeds[0];
   const JSONifiedData = JSON.parse(rawData.description);
-  let weatherForTodayAndTom = [];
+  //let weatherForTodayAndTom = [];
 
-  for (let i = 0; i < JSONifiedData.length; i++) {
+  /*for (let i = 0; i < JSONifiedData.length; i++) {
     if (getDay(today) === getDay(JSONifiedData[i].time)) weatherForTodayAndTom = [JSONifiedData[i], JSONifiedData[i+1]];
-  }
   
-  const processedData = getTodayData ? weatherForTodayAndTom : JSONifiedData;
+    console.log(getDay(today) === getDay(JSONifiedData[i].time + 28800), getDay(today), getDay(JSONifiedData[i].time + 28800), JSONifiedData[i].time + 28800)
+  }*/
+  
+  const processedData = getTodayData ? [JSONifiedData[getDay(today) - 1], JSONifiedData[getDay(today)]] : JSONifiedData;
 
   return humanized ? humanize(processedData) : processedData;
 
