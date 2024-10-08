@@ -247,7 +247,7 @@ exports.checkDevMsg = async (ctx) => {
 
 exports.getCollegeInfo = async (ctx, collegesArray, queryBased = true, args = 0) => {
 
-    const college = queryBased ? collegesArray[getRandomInt(0, collegesArray.length - 1)] : collegesArray.find(c => c[1].toLowerCase() === args[0]);
+    const college = queryBased ? collegesArray[getRandomInt(0, collegesArray.length - 1)] : collegesArray.find(c => c[1].toLowerCase() === args[0].toLowerCase());
     const content = {
         text: `The following programs are offered by the *PUP ${college[0]} (${college[1]})*:\n\n${college[2].split("\n").map((c, i) => `${i + 1}. ${c}`).join("\n")}`,
         options: {

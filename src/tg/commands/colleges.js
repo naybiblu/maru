@@ -16,7 +16,7 @@ module.exports = {
         
         let collegeList = [];
 
-        colleges.forEach(college => collegeList.push(college[1]));
+        colleges.forEach(college => collegeList.push(college[1].toLowerCase()));
 
         if (args.length === 0) return ctx.reply("*📚  Welcome to /colleges, where you can retrieve information of various colleges from PUP.*\n\n" +
             "To properly use this, kindly _long press_ the command, instead of clicking.\n\n" +
@@ -24,7 +24,7 @@ module.exports = {
             { parse_mode: "Markdown" }
         );
 
-        if (collegeList.forEach(c => c[1].toLowerCase() === args[0].toLowerCase())) return ctx.reply("*📚  Welcome to /colleges, where you can retrieve information of various colleges from PUP.*\n\n" +
+        if (collegeList.forEach(c => c[1].toLowerCase() === args[0].toLowerCase()) === undefined) return ctx.reply("*📚  Welcome to /colleges, where you can retrieve information of various colleges from PUP.*\n\n" +
             "To properly use this, kindly input the appropriate initialism as stated below.\n\n" +
             `\`\`\`format /colleges <initialism>\`\`\`\n\`\`\`initialism ${collegeList.join("\n\t")}\`\`\``,
             { parse_mode: "Markdown" }
