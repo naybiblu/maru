@@ -12,6 +12,14 @@ exports.commands = async () => {
             description: "Interact with the main menu."
         },
         {
+            command: "foodtrip",
+            description: "Browse every food establishment within and around PUP."
+        },
+        {
+            command: "colleges",
+            description: "Look for a certain college that piques your interests."
+        },
+        {
             command: "paperplane",
             description: "Send a message to a random PUPian."
         },
@@ -20,8 +28,8 @@ exports.commands = async () => {
             description: "Respond to a received message."
         },
         {
-            command: "foodtrip",
-            description: "Browse every food establishment within and around PUP."
+            command: "spotifyplaylist",
+            description: "Get a random Spotify playlist."
         },
         {
             command: "settings",

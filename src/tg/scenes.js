@@ -102,7 +102,7 @@ module.exports = {
         const menuScene = new Scenes.BaseScene("menu");
 
         menuScene
-            .enter(async ctx => await checkPUPWeather(ctx, false))
+            .enter(async ctx => await checkPUPWeather(ctx, ctx.update["message"] ? false : true))
             .action("mWeatherToday", async ctx => await checkPUPWeather(ctx, true))
             .action("mWeatherTom", async ctx => await checkPUPWeather(ctx, true, false))
             .action("mNews", async ctx => await checkPUPNews(ctx))

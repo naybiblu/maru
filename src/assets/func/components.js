@@ -1,9 +1,10 @@
-const moment = require("moment");
+const moment = require("moment-timezone");
 const Markup = require('telegraf/markup');
 const { parse } = require('rss-to-json');
 const { 
     getFoodData,
     getDay,
+    getRandomInt,
     getMessage,
     getStateOfTheDay: statify,
     readPUPWeatherData: weatherData
@@ -168,7 +169,7 @@ exports.checkPUPWeather = async (ctx, queryBased = true, getToday = true) => {
     const content = {
         text: `*👋 Good ${statify().en}, ${author.username}!\n\n*` +
         `We expect${data.weatherCode.text.endsWith("s") ? " " : ["a", "e", "i", "o", "u"].includes([...data.weatherCode.text][0]) ? " an " : " a "}` +
-        `${data.weatherCode.emoji} *${data.weatherCode.text.toLowerCase()}* ${getToday ? "today" : "tomorrow"} in PUP Sta. Mesa, ` +
+        `${data.weatherCode.emoji} *${data.weatherCode.text.toLowerCase()}* ${getToday ? "today" : "tomorrow"} (${moment.tz(data.time * 1000, "Asia/Manila").format("LL")}) in PUP Sta. Mesa, ` +
         `with *${data.rainProb} chance of raining*.\n\n` +
         `\`\`\`temperature maximum: ${data.maxTemp}\n\tminimum: ${data.minTemp}\`\`\``,
         options: {
@@ -241,5 +242,29 @@ exports.checkDevMsg = async (ctx) => {
 
     await ctx.answerCbQuery();
     await ctx.editMessageText(content.text, content.options);
+
+};
+
+exports.getCollegeInfo = async (ctx, collegesArray, queryBased = true, args = 0) => {
+
+    const college = queryBased ? collegesArray[getRandomInt(0, collegesArray.length - 1)] : collegesArray.find(c => c[1].toLowerCase() === args[0]);
+    const content = {
+        text: `The following programs are offered by the *PUP ${college[0]} (${college[1]})*:\n\n${college[2].split("\n").map((c, i) => `${i + 1}. ${c}`).join("\n")}`,
+        options: {
+            parse_mode: "Markdown",
+            ...Markup.inlineKeyboard([
+                [ Markup.button.url("Official Facebook Page", college[3] === "" ? "https://facebook.com" : college[3] , college[3] === "") ],
+                [ Markup.button.url("Student Council Facebook Page", college[4]) ],
+                [ /*Markup.button.callback("Feeling Lucky?", "randomCollege"), */Markup.button.callback("Back", "mainMenu") ]
+            ])
+        }
+    };
+
+    if (queryBased) {
+
+        await ctx.answerCbQuery();
+        await ctx.editMessageText(content.text, content.options);
+
+    } else await ctx.reply(content.text, content.options);
 
 };
