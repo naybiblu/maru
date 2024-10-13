@@ -8,6 +8,7 @@ const {
     foodWatchMenu,
     checkPUPWeather,
     checkPUPNews,
+    checkPUPAnnouncement,
     checkDevMsg
 } = require("./../assets/func/components");
 const { model } = require("./../assets/db/models/user");
@@ -106,6 +107,7 @@ module.exports = {
             .action("mWeatherToday", async ctx => await checkPUPWeather(ctx, true))
             .action("mWeatherTom", async ctx => await checkPUPWeather(ctx, true, false))
             .action("mNews", async ctx => await checkPUPNews(ctx))
+            .action("mAnn", async ctx => await checkPUPAnnouncement(ctx))
             .action("mDevMsg", async ctx => await checkDevMsg(ctx));
 
 

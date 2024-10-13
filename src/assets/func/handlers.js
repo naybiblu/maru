@@ -38,7 +38,7 @@ exports.commandHandler = () => {
         
     let data = require(`./../../tg/actions/${name}`);
 
-    tg.action(data.name, data.run.bind(tg));
+    tg.action(data.name, data.run.bind(tg)).catch(err => console.error(err));
 
   });
 
@@ -58,7 +58,7 @@ exports.commandHandler = () => {
 
 exports.sceneHandler = async () => {
 
-  require("./../../tg/scenes").run(tg);
+  require("./../../tg/scenes").run(tg).catch(err => console.error(err));;
 
   log.success(
     "Telegram", 
@@ -92,7 +92,7 @@ exports.connectDB = async () => {
 
     let data = require(`./../../mongo/events/${event}`);
 
-    data.run();
+    data.run().catch(err => console.error(err));
 
   });
 
@@ -113,11 +113,17 @@ exports.connectDC = async () => {
         "Online."
       );
 
-      setInterval(async () => {
-        
+      try {
+
         await sendWeeklyPUPWeather();
-      
-      }, 20 * 1000);
+
+        setInterval(async () => {
+          
+          await sendWeeklyPUPWeather();
+        
+        }, 20 * 1000);
+
+      } catch (err) { console.error(err); }
 
     })
     .login(token);

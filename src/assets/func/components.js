@@ -176,7 +176,7 @@ exports.checkPUPWeather = async (ctx, queryBased = true, getToday = true) => {
             parse_mode: 'Markdown',
             ...Markup.inlineKeyboard([
                 [ 
-                    Markup.button.callback("◄ News", "mNews", !getToday), 
+                    Markup.button.callback("◄ Announcement", "mAnn", !getToday), 
                     Markup.button.callback(`Tomorrow ►`, 'mWeatherTom', !getToday),
                     Markup.button.callback("◄ Today", "mWeatherToday", getToday), 
                     Markup.button.callback(`Dev\'s Message ►`, 'mDevMsg', getToday)
@@ -196,7 +196,7 @@ exports.checkPUPWeather = async (ctx, queryBased = true, getToday = true) => {
 
 exports.checkPUPNews = async (ctx) => {
 
-    const rss = await parse('https://www.pup.edu.ph/rss/news/?go=11');
+    const rss = await parse('https://www.pup.edu.ph/rss/news');
     const firstNews = rss.items[0];
     const article = firstNews.description.split("<br/>");
     const [author, text] = article;
@@ -205,13 +205,40 @@ exports.checkPUPNews = async (ctx) => {
     const content = {
         text: `NEWS | *${firstNews.title}*\n` +
         `by _${author}_\n\n` +
-        `${sentences[1].replace(/<[^>]*>?/gm, '')}`,
+        `${sentences[1].replace(/<[^>]*>?/gm, '')}...`,
         options: {
             parse_mode: 'Markdown',
             ...Markup.inlineKeyboard([
                 [ Markup.button.url("Read More", firstNews.link) ],
                 [ 
                     Markup.button.callback("◄ Dev\'s Message", "mDevMsg"), 
+                    Markup.button.callback(`Announcement ►`, 'mAnn'),
+                ]
+            ])
+        }
+    };
+
+    await ctx.answerCbQuery();
+    await ctx.editMessageText(content.text, content.options);
+    //await ctx.editMessageMedia({ source: photo });
+
+};
+
+exports.checkPUPAnnouncement = async (ctx) => {
+
+    const rss = await parse('https://www.pup.edu.ph/rss/announcements/');
+    const firstAnn = rss.items[0];
+    const article = firstAnn.description.split("<br/>")[1];
+    //const photo = text.match(/<img.*?src="(.*?)"/i)[1];
+    const content = {
+        text: `ANNOUNCEMENT | *${firstAnn.title}*\n\n` +
+        `${article.replace(/<[^>]*>?/gm, '')}`,
+        options: {
+            parse_mode: 'Markdown',
+            ...Markup.inlineKeyboard([
+                [ Markup.button.url("Read More", firstAnn.link) ],
+                [ 
+                    Markup.button.callback("◄ News", "mNews"), 
                     Markup.button.callback(`Weather ►`, 'mWeatherToday'),
                 ]
             ])
@@ -253,6 +280,7 @@ exports.getCollegeInfo = async (ctx, collegesArray, queryBased = true, args = 0)
         options: {
             parse_mode: "Markdown",
             ...Markup.inlineKeyboard([
+                [ Markup.button.url("More Info", `https://www.pup.edu.ph/${college[1].toLowerCase()}`) ],
                 [ Markup.button.url("Official Facebook Page", college[3] === "" ? "https://facebook.com" : college[3] , college[3] === "") ],
                 [ Markup.button.url("Student Council Facebook Page", college[4]) ],
                 [ /*Markup.button.callback("Feeling Lucky?", "randomCollege"), */Markup.button.callback("Back", "mainMenu") ]

@@ -79,7 +79,7 @@ exports.getWeekNumber = () => {
   const date = new Date();
   const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
   const millisecondsSinceFirstDay = date - firstDayOfYear;
-  const daysSinceFirstDay = millisecondsSinceFirstDay / (24 * 60 * 60 * 1000);
+  const daysSinceFirstDay = (millisecondsSinceFirstDay + 86400000) / (24 * 60 * 60 * 1000);
   const weekNumber = Math.ceil(daysSinceFirstDay / 7);
 
   return weekNumber;
@@ -98,7 +98,7 @@ exports.getDay = (unix, humanized = false) => {
     "Saturday"
   ];
 
-  const date = new Date(unix);
+  const date = new Date(unix * 1000);
   let day = date.getDay();
 
   return humanized ? daysOftheWeek[day] : day;
@@ -112,6 +112,14 @@ exports.weekToUnix = (weekNumber, year) => {
   const startOfWeek = firstDayOfYear.getTime() + (weekNumber - 1) * millisecondsInWeek;
 
   return startOfWeek / 1000;
+
+};
+
+exports.mdyToUnix = (month, day, year) => {
+
+  const date = new Date(year, month, day);
+
+  return Math.floor(date.getTime() / 1000);
 
 };
 
@@ -190,9 +198,9 @@ exports.extractCode = async () => {
   const channel = await dc.channels.fetch(weatherChanId);
   const rawCode = (await channel.messages.fetch({ limit: 1 })).first().embeds[0].footer.text;
   const extractedCode = rawCode.match(/\d+/g).map(Number);
-  const [week, year] = extractedCode;
+  const [month, day, year] = extractedCode;
 
-  return this.weekToUnix(week, year);
+  return this.mdyToUnix(month, day, year);
 
 };
 
@@ -250,18 +258,19 @@ exports.sendWeeklyPUPWeather = async () => {
   const {
     extractCode,
     getSimilarFooterCount,
-    getWeekNumber,
     sendMessage,
     log
   } = this;
 
   const targetDate = await extractCode();
   const today = Math.floor(Date.now() / 1000);
+  const month = (new Date).getMonth();
+  const day = (new Date).getDate();
   const year = (new Date).getFullYear();
-  const similarFooterCount = await getSimilarFooterCount(`W${getWeekNumber()}Y${year}`);
+  const similarFooterCount = await getSimilarFooterCount(`M${month}D${day}Y${year}`);
 
   if (similarFooterCount >= 1) return;
-  if (today < targetDate) return;
+  if (today < targetDate - 60*60*24) return;
 
   const dailyData = (await get(weatherLink)).data.daily;
   const time = dailyData.time;
@@ -290,7 +299,7 @@ exports.sendWeeklyPUPWeather = async () => {
       {
         description: JSON.stringify(organizedData),
         footer: {
-          text: `W${getWeekNumber()}Y${year}`
+          text: `M${month}D${day}Y${year}`
         }
       }
     ]
@@ -298,7 +307,7 @@ exports.sendWeeklyPUPWeather = async () => {
 
   log.success(
     "Discord",
-    `Sent PUP weather update for Week ${getWeekNumber()}, Year ${year}.`
+    `Sent PUP weather update for ${new Date}}`
   );
 
 };
@@ -361,6 +370,7 @@ exports.readPUPWeatherData = async (getTodayData = true, humanized = true) => {
   const today = Math.floor(Date.now());
   const rawData = (await (await dc.channels.fetch(weatherChanId)).messages.fetch({ limit: 1 })).first().embeds[0];
   const JSONifiedData = JSON.parse(rawData.description);
+
   //let weatherForTodayAndTom = [];
 
   /*for (let i = 0; i < JSONifiedData.length; i++) {
@@ -369,7 +379,7 @@ exports.readPUPWeatherData = async (getTodayData = true, humanized = true) => {
     console.log(getDay(today) === getDay(JSONifiedData[i].time + 28800), getDay(today), getDay(JSONifiedData[i].time + 28800), JSONifiedData[i].time + 28800)
   }*/
   
-  const processedData = getTodayData ? [JSONifiedData[getDay(today) - 1], JSONifiedData[getDay(today)]] : JSONifiedData;
+  const processedData = getTodayData ? [JSONifiedData[0], JSONifiedData[1]] : JSONifiedData;
 
   return humanized ? humanize(processedData) : processedData;
 
