@@ -161,15 +161,18 @@ exports.endStart = async (ctx) => {
 
 exports.checkPUPWeather = async (ctx, queryBased = true, getToday = true) => {
 
+    const {
+        extractCode,
+        getDay
+    } = require("./misc");
     const author = queryBased ? ctx.update.callback_query.from : ctx.update.message.from;
     const [today, tomorrow] = await weatherData();
     const data = getToday ? today : tomorrow;
     //const checkIfToday = getDay(data.time + 28800) === getDay(Date.now());
-    const date = new Date(data.time * 1000);
     const content = {
         text: `*👋 Good ${statify().en}, ${author.username}!\n\n*` +
-        `We expect${data.weatherCode.text.endsWith("s") ? " " : ["a", "e", "i", "o", "u"].includes([...data.weatherCode.text][0]) ? " an " : " a "}` +
-        `${data.weatherCode.emoji} *${data.weatherCode.text.toLowerCase()}* ${getToday ? "today" : "tomorrow"} (${moment.tz(data.time * 1000, "Asia/Manila").format("LL")}) in PUP Sta. Mesa, ` +
+        `We expect${data.weatherCode.text.endsWith("s") ? " " : ["a", "e", "i", "o", "u"].includes([...data.weatherCode.text][0].toLowerCase()) ? " an " : " a "}` +
+        `${data.weatherCode.emoji} *${data.weatherCode.text.toLowerCase()}* ${getToday ? "today" : "tomorrow"} (${moment.tz(data.time * 1000, "Asia/Manila").format("LL")}; ${getDay(data.time, true)}) in PUP Sta. Mesa, ` +
         `with *${data.rainProb} chance of raining*.\n\n` +
         `\`\`\`temperature maximum: ${data.maxTemp}\n\tminimum: ${data.minTemp}\`\`\``,
         options: {

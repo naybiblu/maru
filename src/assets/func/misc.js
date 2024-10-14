@@ -268,7 +268,6 @@ exports.sendDailyPUPWeather = async () => {
   const day = (new Date).getDate();
   const year = (new Date).getFullYear();
   const similarFooterCount = await getSimilarFooterCount(`M${month}D${day}Y${year}`);
-  console.log(new Date)
 
   if (similarFooterCount >= 1) return;
   if (today < targetDate) return;
