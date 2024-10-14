@@ -253,7 +253,7 @@ exports.getFooterText = async () => {
 
 };
 
-exports.sendWeeklyPUPWeather = async () => {
+exports.sendDailyPUPWeather = async () => {
 
   const {
     extractCode,
@@ -268,9 +268,10 @@ exports.sendWeeklyPUPWeather = async () => {
   const day = (new Date).getDate();
   const year = (new Date).getFullYear();
   const similarFooterCount = await getSimilarFooterCount(`M${month}D${day}Y${year}`);
+  console.log(new Date)
 
   if (similarFooterCount >= 1) return;
-  if (today < targetDate - 60*60*24) return;
+  if (today < targetDate) return;
 
   const dailyData = (await get(weatherLink)).data.daily;
   const time = dailyData.time;
