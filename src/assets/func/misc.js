@@ -40,6 +40,18 @@ exports.getRandomInt = (min, max) => {
   
 };
 
+exports.changeTimezone = (date, ianatz = "Asia/Manila") => {
+
+  var invdate = new Date(date.toLocaleString('en-US', {
+      timeZone: ianatz
+    }));
+
+  var diff = date.getTime() - invdate.getTime();
+
+  return new Date(date.getTime() - diff); 
+
+};
+
 exports.toMilitaryTime = (string) => {
 
   const [time, modifier] = string.split(' ');
@@ -54,13 +66,12 @@ exports.toMilitaryTime = (string) => {
 
 exports.getStateOfTheDay = (time = Date.now()) => {
 
-  const { toMilitaryTime } = this;
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    dateStyle: 'full',
-    timeStyle: 'long',
-    timeZone: 'Asia/Manila',
-  });
-  time = formatter.format(time).split(" ");
+  const { 
+    toMilitaryTime,
+    changeTimezone
+  } = this;
+
+  time = changeTimezone(time).split(" ");
   const militaryTime = toMilitaryTime(time[5] + " " + time[6]);
   const hour = militaryTime.split(":")[0];
   let output;
@@ -99,7 +110,7 @@ exports.getDay = (unix, humanized = false) => {
   ];
 
   const date = new Date(unix * 1000);
-  let day = date.getDay();
+  let day = this.changeTimezone(date).getDay();
 
   return humanized ? daysOftheWeek[day] : day;
 
@@ -119,7 +130,7 @@ exports.mdyToUnix = (month, day, year) => {
 
   const date = new Date(year, month, day);
 
-  return Math.floor(date.getTime() / 1000);
+  return Math.floor(this.changeTimezone(date).getTime() / 1000);
 
 };
 
