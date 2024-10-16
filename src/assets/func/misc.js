@@ -57,29 +57,71 @@ exports.toMilitaryTime = (string) => {
   const [time, modifier] = string.split(' ');
   let [hours, minutes] = time.split(':');
 
-  if (hours === '12') hours = '00';
+  if (hours === "12" && modifier === 'PM') hours = "12";
   else if (modifier === 'PM') hours = parseInt(hours, 10) + 12;
+  else if (hours === '12' && modifier === "AM") hours = '00';
 
   return `${hours}:${minutes}`;
 
 };
 
-exports.getStateOfTheDay = (time = Date.now()) => {
+exports.getAccurateDate = (element, date = Date.now()) => {
 
-  const { 
-    toMilitaryTime,
-    changeTimezone
-  } = this;
-
-  time = changeTimezone(time).split(" ");
-  const militaryTime = toMilitaryTime(time[5] + " " + time[6]);
-  const hour = militaryTime.split(":")[0];
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    dateStyle: 'full',
+    timeStyle: 'long',
+    timeZone: 'Asia/Manila',
+  });
+  const monthEnum = {
+    "January": 0,
+    "February": 1,
+    "March": 2,
+    "April": 3,
+    "May": 4,
+    "June": 5,
+    "July": 6,
+    "August": 7,
+    "September": 8,
+    "October": 9,
+    "November": 10,
+    "December": 11
+  };
+  date = formatter.format(date).split(" ");
   let output;
 
-  if (hour < 12) output = { en: "morning", tl: "umaga" };
+  switch (element) {
+
+    case "whole": output = date.join(" "); break;
+    case "dayWord": output = date[0].replace(",", ""); break;
+    case "monthWord": output = date[1]; break;
+    case "monthNumber": output = monthEnum[date[1]]; break;
+    case "dayNumber": output = parseInt(date[2].replace(",", ""), 10); break;
+    case "year": output = parseInt(date[3], 10); break;
+    case "time": output = date[5] + " " + date [6];
+
+  };
+
+  return output;
+
+};
+
+exports.getStateOfTheDay = (time = Date.now()) => {
+
+  const {
+    toMilitaryTime,
+    getAccurateDate
+  } = this;
+  const militaryTime = toMilitaryTime(getAccurateDate("time", time));
+  const rawHour = militaryTime.split(":")[0];
+  const hour = parseInt(rawHour, 10);
+  let output;
+
+  if (hour < 12 && hour !== 12) output = { en: "morning", tl: "umaga" };
   else if (hour === 12) output = { en: "noon", tl: "tanghali" };
   else if (hour < 18) output = { en: "afternoon", tl: "hapon" };
   else output = { en: "evening", tl: "gabi" };
+
+  console.log(hour === 12, hour, time)
 
   return output;
 
@@ -130,7 +172,7 @@ exports.mdyToUnix = (month, day, year) => {
 
   const date = new Date(year, month, day);
 
-  return Math.floor(this.changeTimezone(date).getTime() / 1000);
+  return Math.floor(date.getTime() / 1000);
 
 };
 
@@ -270,18 +312,22 @@ exports.sendDailyPUPWeather = async () => {
     extractCode,
     getSimilarFooterCount,
     sendMessage,
+    getAccurateDate,
     log
   } = this;
 
   const targetDate = await extractCode();
   const today = Math.floor(Date.now() / 1000);
-  const month = (new Date).getMonth();
-  const day = (new Date).getDate();
-  const year = (new Date).getFullYear();
+  const month = getAccurateDate("monthNumber");
+  const day = getAccurateDate("dayNumber");
+  const year = getAccurateDate("year");
   const similarFooterCount = await getSimilarFooterCount(`M${month}D${day}Y${year}`);
 
+  console.log(similarFooterCount >= 1, month, day, year, today, targetDate)
   if (similarFooterCount >= 1) return;
-  if (today < targetDate) return;
+  console.log("hi")
+  if (today < targetDate + 46800) return;
+  console.log("gana")
 
   const dailyData = (await get(weatherLink)).data.daily;
   const time = dailyData.time;
@@ -318,7 +364,7 @@ exports.sendDailyPUPWeather = async () => {
 
   log.success(
     "Discord",
-    `Sent PUP weather update for ${new Date}}`
+    `Sent PUP weather update for ${getAccurateDate("whole")}`
   );
 
 };
