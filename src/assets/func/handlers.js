@@ -5,7 +5,13 @@ const { parse } = require('rss-to-json');
 const { DISCORD_TOKEN: token } = process.env;
 require("dotenv").config();
 const { tg, dc } = require("./clients");
-const { log, mongo, sendDailyPUPWeather } = require("./misc");
+const { 
+  log, 
+  mongo, 
+  sendDailyPUPWeather,
+  sendLETData,
+  revealLETAnswer
+} = require("./misc");
 const { commands: c1 } = require("./commands");
 const { model } = require("./../db/models/user");
 
@@ -115,11 +121,14 @@ exports.connectDC = async () => {
 
       try {
 
+        //await sendLETData();
+        await revealLETAnswer();
         await sendDailyPUPWeather();
 
         setInterval(async () => {
           
           await sendDailyPUPWeather();
+          await revealLETAnswer();
         
         }, 20 * 1000);
 
