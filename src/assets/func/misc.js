@@ -61,7 +61,6 @@ exports.toMilitaryTime = (string) => {
   let hours, minutes;
   const [time, modifier] = string.split(' ');
 
-<<<<<<< HEAD
   if (Array.isArray(time.split(","))) {
 
     let [h, m] = time.split(',').slice(0, 2);
@@ -75,8 +74,6 @@ exports.toMilitaryTime = (string) => {
 
   };
 
-=======
->>>>>>> 84dcdc0ebd73e554188384b7a0d5eeec4c5c1f6b
   if (hours === "12" && modifier === 'PM') hours = "12";
   else if (modifier === 'PM') hours = parseInt(hours, 10) + 12;
   else if (hours === '12' && modifier === "AM") hours = '00';
@@ -107,12 +104,9 @@ exports.getAccurateDate = (element, date = Date.now()) => {
     "December": 11
   };
   date = formatter.format(date).split(" ");
-<<<<<<< HEAD
 
   const newDate = new Date(`${date[1]} ${date[2]} ${date[3]} ${this.toMilitaryTime(`${date[5].split(":").slice(0, 2)} ${date[6]}`)}`);
   
-=======
->>>>>>> 84dcdc0ebd73e554188384b7a0d5eeec4c5c1f6b
   let output;
 
   switch (element) {
@@ -123,12 +117,8 @@ exports.getAccurateDate = (element, date = Date.now()) => {
     case "monthNumber": output = monthEnum[date[1]]; break;
     case "dayNumber": output = parseInt(date[2].replace(",", ""), 10); break;
     case "year": output = parseInt(date[3], 10); break;
-<<<<<<< HEAD
     case "time": output = date[5] + " " + date[6]; break;
     case "unix": output = Math.floor(newDate.getTime() / 1000);
-=======
-    case "time": output = date[5] + " " + date [6];
->>>>>>> 84dcdc0ebd73e554188384b7a0d5eeec4c5c1f6b
 
   };
 
@@ -413,21 +403,11 @@ exports.sendDailyPUPWeather = async () => {
   const month = getAccurateDate("monthNumber");
   const day = getAccurateDate("dayNumber");
   const year = getAccurateDate("year");
-<<<<<<< HEAD
   const similarFooterCount = await getSimilarFooterCount(`M${month}D${day}Y${year}`, weatherChanId);
-=======
-  const similarFooterCount = await getSimilarFooterCount(`M${month}D${day}Y${year}`);
->>>>>>> 84dcdc0ebd73e554188384b7a0d5eeec4c5c1f6b
 
-  console.log(similarFooterCount >= 1, month, day, year, today, targetDate)
+  //console.log(similarFooterCount >= 1, month, day, year, today, targetDate)
   if (similarFooterCount >= 1) return;
-<<<<<<< HEAD
   if (today < targetDate + 46800) return;
-=======
-  console.log("hi")
-  if (today < targetDate + 46800) return;
-  console.log("gana")
->>>>>>> 84dcdc0ebd73e554188384b7a0d5eeec4c5c1f6b
 
   const dailyData = (await axios.get(weatherLink)).data.daily;
   const time = dailyData.time;
