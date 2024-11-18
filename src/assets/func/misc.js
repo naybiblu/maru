@@ -105,7 +105,7 @@ exports.getAccurateDate = (element, date = Date.now()) => {
   };
   date = formatter.format(date).split(" ");
 
-  const newDate = new Date(`${date[1]} ${date[2]} ${date[3]} ${this.toMilitaryTime(`${date[5].split(":").slice(0, 2)} ${date[6]}`)}`);
+  const newDate = new Date(`${date[1]} ${date[2]} ${date[3]} ${this.toMilitaryTime(`${date[5].split(":").slice(0, 2)} ${date[6]}`)}:${date[5].split(":")[2]}`);
   
   let output;
 
@@ -118,7 +118,7 @@ exports.getAccurateDate = (element, date = Date.now()) => {
     case "dayNumber": output = parseInt(date[2].replace(",", ""), 10); break;
     case "year": output = parseInt(date[3], 10); break;
     case "time": output = date[5] + " " + date[6]; break;
-    case "unix": output = Math.floor(newDate.getTime() / 1000);
+    case "unix": output = Math.floor(newDate.getTime() / 1000) - (60 * 60 * 3);
 
   };
 
@@ -399,15 +399,15 @@ exports.sendDailyPUPWeather = async () => {
   } = this;
 
   const targetDate = await extractCode();
-  const today = Math.floor(Date.now() / 1000);
+  const today = getAccurateDate("unix");
   const month = getAccurateDate("monthNumber");
   const day = getAccurateDate("dayNumber");
   const year = getAccurateDate("year");
   const similarFooterCount = await getSimilarFooterCount(`M${month}D${day}Y${year}`, weatherChanId);
 
-  //console.log(similarFooterCount >= 1, month, day, year, today, targetDate)
+  console.log(similarFooterCount >= 1, month, day, year, new Date(today * 1000), new Date((targetDate + 75600) * 1000))
   if (similarFooterCount >= 1) return;
-  if (today < targetDate + 46800) return;
+  if (today < targetDate + 75600) return;
 
   const dailyData = (await axios.get(weatherLink)).data.daily;
   const time = dailyData.time;
